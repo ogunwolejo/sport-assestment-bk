@@ -10,7 +10,7 @@ class AppRouter {
     }
 
     initializeRoutes() {
-        this.router.post('/auth', this.authRouter.router)
+        this.router.use('/auth', this.authRouter.router)
     }
 }
 

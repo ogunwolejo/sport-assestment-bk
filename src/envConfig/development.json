@@ -1,5 +1,8 @@
 {
     "env": "development",
     "port": 5000,
-    "secretKey":"MmxRPB"
+    "secretKey":"MmxRPB",
+    "dbPassword": "eyP87riyjytfzsge",
+    "vonageKey":"4e585599",
+    "vonageSecret":"OVWhEAhY1eDGjEDq"
 }
