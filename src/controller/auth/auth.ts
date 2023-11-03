@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { CONFIG_OTP_GENERATOR, IAuthRegister, RequestTokenHandler } from "../../interface/auth.interface";
+import { CONFIG_OTP_GENERATOR, IAuthRegister } from "../../interface/auth.interface";
 import { User } from "../../model/users";
 import config from "config";
 import jwt from "jsonwebtoken"
@@ -7,9 +7,12 @@ import { SMS, USER_MESSAGES } from "../../util/messages";
 import {Types} from "mongoose"
 import OtpGenerator from 'otp-generator';
 import { PasswordSecurity } from "../../util/bcrypt";
+import { Sms } from "../../services/messages/sms";
+import { SendNodeMail } from "../../services/messages/mail";
 
 class AuthController {
     private bcrypt:PasswordSecurity = new PasswordSecurity()
+    private sendNodemail:SendNodeMail = new SendNodeMail()
     
     public login = async(req:Request, res:Response, next: NextFunction) => {
         try {
@@ -31,20 +34,24 @@ class AuthController {
 
             // when the phoneNumber is not defined
             const user = await User.findOne({email})
-            .select('-password -otp -isOtpVerified').exec()
+            .select('-otp -isOtpVerified').exec()
             if(!user) {
                 return res.status(400).json({
                     status:false,
                     error:USER_MESSAGES.INVALID_CREDENTIALS
                 })
             }
-            //comparing hashpassword and user login in password
-            const isPasswordCorrect:boolean = this.bcrypt.comparePasswords(user?.password, password)
-            if(!isPasswordCorrect) {
-                return res.status(400).json({
-                    status:false,
-                    error:USER_MESSAGES.INCORRECT_PASSWORD
-                })
+
+            if(user) {
+                //comparing hashpassword and user login in password
+                console.log(user)
+                const isPasswordCorrect:boolean = this.bcrypt.comparePasswords(user.password, password)
+                if(!isPasswordCorrect) {
+                    return res.status(400).json({
+                        status:false,
+                        error:USER_MESSAGES.INCORRECT_PASSWORD
+                    })
+                }
             }
 
             const token = jwt.sign({ id: user._id }, config.get('secretKey'));
@@ -63,8 +70,11 @@ class AuthController {
             const hashPassword:string = this.bcrypt.hashingPassword(password) 
             const payload = { email, firstName, lastName, password:hashPassword, phoneNumber }
             const result = await new User(payload).save();
+            // send mail
             return res.status(201).json({ status: true, data: { user: result }, message: USER_MESSAGES.USER_CREATED });
-          } else {
+        } else {
+            this.sendNodemail.sendEmail('ogunwole888@yahoo.com')
+            //this.sendMail.sendMail('ogunwole888@gmail.com', "send mail", html)
             return res.status(200).json({
                 status:false,
                 error:USER_MESSAGES.USER_ALREADY_REGISTERED
@@ -95,9 +105,9 @@ class AuthController {
         }
     }
 
-    public verifyOtp = async (req: RequestTokenHandler, res: Response, next: NextFunction) => {
+    public verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-          const { body: { phoneNumber, otp }, id } = req;
+          const { body: { phoneNumber, otp, id } } = req;
           let appUser = await User.findOne({ _id: id, phoneNumber: phoneNumber, otp })
           if (appUser) {
             const result = await User.findByIdAndUpdate(appUser._id, { isPhoneNumberVerified: true }, {

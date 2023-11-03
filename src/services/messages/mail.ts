@@ -1,33 +1,32 @@
-import Sib from 'sib-api-v3-sdk';
+import {createTransport} from 'nodemailer'
 import config from 'config'
 
-export class SendMail {
-    public async sendMail(to:string, subject:string, body:string) {
-        try {
-            const client = Sib.ApiClient.instance
-            const apiKey = client.authentications['api-key']
-            apiKey.apiKey = config.get('sendInBlueApiKey')
-            const tranEmailApi = new Sib.TransactionalEmailsApi()
+export class SendNodeMail {
+    private transporter;
 
-            tranEmailApi.sendTransacEmail({
-                sender: {
-                    email: "jobahelpdesk@gmail.com",
-                    name: 'Joshua ogunw',
-                }
-                ,
-                to: [
-                    {
-                        email: to,
-                    },
-                ],
-                subject,
-                htmlContent: body,
-            })
-                .then(() => {})
-                .catch(()=>{})
-        } catch (error) {
-            console.log('error', error)
-        }
-
+    constructor() {
+        this.transporter = createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            auth: {
+                user: 'lucie.konopelski59@ethereal.email',
+                pass: 'TumbxPG6vCtWgge26B'
+            }
+        })
     }
+
+
+    public sendEmail = async(to:string) => {
+        await this.transporter.sendMail({
+            from: '"Fred Foo 👻" <foo@example.com>', // sender address
+            to: to,
+            subject: "Hello ✔", // Subject line
+            text: "Hello world?", // plain text body
+            html: "<b>Hello world?</b>", // html body
+        })
+        .then((response:any) => console.log("Node-mailer", response))
+        .catch((error:any) => console.log("Node-mailer error", error))
+    }
+
+
 }

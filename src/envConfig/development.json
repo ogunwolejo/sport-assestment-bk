@@ -2,7 +2,5 @@
     "env": "development",
     "port": 5000,
     "secretKey":"MmxRPB",
-    "dbPassword": "eyP87riyjytfzsge",
-    "vonageKey":"4e585599",
-    "vonageSecret":"OVWhEAhY1eDGjEDq"
+    "dbPassword": "eyP87riyjytfzsge"
 }
