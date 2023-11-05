@@ -4,6 +4,7 @@ interface IUser extends Document {
     firstName: string,
     lastName: string,
     email: string,
+    emailVerified: boolean;
     phoneNumber: string,
     isPhoneNumberVerified: boolean,
     password: string,
@@ -16,6 +17,7 @@ const UserSchema = new Schema<IUser>({
     firstName: { type: String, default: '' },
     lastName: { type: String, default: '' },
     email: { type: String, required:true, unique: true },
+    emailVerified:{ type: Boolean, default: false },
     phoneNumber: { type: String, required:true, unique:true },
     isPhoneNumberVerified: { type: Boolean, default: false },
     password: { type: String, default: '' },

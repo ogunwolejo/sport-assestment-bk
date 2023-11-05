@@ -6,11 +6,13 @@ export class SendNodeMail {
 
     constructor() {
         this.transporter = createTransport({
-            host: 'smtp.ethereal.email',
+            host: 'smtp.gmail.com',
+            service:'gmail',
             port: 587,
+            secure:false,
             auth: {
-                user: 'lucie.konopelski59@ethereal.email',
-                pass: 'TumbxPG6vCtWgge26B'
+                user: config.get('user'),
+                pass: config.get('password')
             }
         })
     }
@@ -18,7 +20,10 @@ export class SendNodeMail {
 
     public sendEmail = async(to:string) => {
         await this.transporter.sendMail({
-            from: '"Fred Foo 👻" <foo@example.com>', // sender address
+            from: {
+                address:config.get('user'),
+                name:'Joshua Ogunwole'
+            },
             to: to,
             subject: "Hello ✔", // Subject line
             text: "Hello world?", // plain text body

@@ -2,5 +2,7 @@
     "env": "development",
     "port": 5000,
     "secretKey":"MmxRPB",
-    "dbPassword": "eyP87riyjytfzsge"
+    "dbPassword": "eyP87riyjytfzsge",
+    "password":"seib axam yivl lvxa",
+    "user":"ogunwole888@gmail.com"
 }

@@ -13,13 +13,13 @@ import { SendNodeMail } from "../../services/messages/mail";
 class AuthController {
     private bcrypt:PasswordSecurity = new PasswordSecurity()
     private sendNodemail:SendNodeMail = new SendNodeMail()
-    
-    public login = async(req:Request, res:Response, next: NextFunction) => {
+
+
+    public loginByPhoneNumber = async(req:Request, res:Response, next: NextFunction) => {
         try {
-            const {body:{email, password, phoneNumber}} = req;
+            const {data:{phoneNumber}} = req.body;
             // when the email and password is not defined; hence the user is login in through their phone number
-            if (!email && !password) {
-                const user = await User.findOne({phoneNumber})
+            const user = await User.findOne({phoneNumber})
                 .select('-password -otp -isOtpVerified').exec()
                 if(!user) {
                     return res.status(401).json({
@@ -28,13 +28,23 @@ class AuthController {
                     })
                 }
 
-                const token = jwt.sign({ id: user._id }, config.get('secretKey'));
-                return res.status(200).json({ status: true, data: { token, user, }, message: USER_MESSAGES.USER_SIGNEDIN });
-            }
+            const token = jwt.sign({ id: user._id }, config.get('secretKey'));
+            return res.status(200).json({ status: true, data: { token, user, }, message: USER_MESSAGES.USER_SIGNEDIN });
 
-            // when the phoneNumber is not defined
+        } catch (error) {
+            next(error)
+        }
+    }
+    
+    public login = async(req:Request, res:Response, next: NextFunction) => {
+        console.log(req)
+        try {
+            const {data:{email, password}} = req.body;
+            //console.log(email, password)
+            // when the email and password is not defined; hence the user is login in through their phone number
             const user = await User.findOne({email})
             .select('-otp -isOtpVerified').exec()
+            //console.log(user)
             if(!user) {
                 return res.status(400).json({
                     status:false,
@@ -44,7 +54,6 @@ class AuthController {
 
             if(user) {
                 //comparing hashpassword and user login in password
-                console.log(user)
                 const isPasswordCorrect:boolean = this.bcrypt.comparePasswords(user.password, password)
                 if(!isPasswordCorrect) {
                     return res.status(400).json({
@@ -63,7 +72,8 @@ class AuthController {
 
     public signup = async (req: Request, res: Response, next: NextFunction) => {
         try {
-          const { body: { email, firstName, lastName, password, phoneNumber } } = req;
+          const { data: { email, firstName, lastName, password, phoneNumber } } = req.body;
+          console.log(req.body)
           let appUser = await User.findOne({ email: email })
           if (!appUser) {
             // hash the password
@@ -73,8 +83,7 @@ class AuthController {
             // send mail
             return res.status(201).json({ status: true, data: { user: result }, message: USER_MESSAGES.USER_CREATED });
         } else {
-            this.sendNodemail.sendEmail('ogunwole888@yahoo.com')
-            //this.sendMail.sendMail('ogunwole888@gmail.com', "send mail", html)
+            this.sendNodemail.sendEmail('ogunwole888@gmail.com')
             return res.status(200).json({
                 status:false,
                 error:USER_MESSAGES.USER_ALREADY_REGISTERED
@@ -87,7 +96,7 @@ class AuthController {
 
     public verifyEmail = async(req: Request, res:Response, next:NextFunction) => {
         try {
-            const {body:{email}} = req;
+            const {data:{email}} = req.body;
             const user = await User.findOne({email})
             if(!user) {
                 return res.status(200).json({
@@ -122,44 +131,24 @@ class AuthController {
         }
     }
     
-    // public sendOtp = async (req: RequestTokenHandler, res: Response, next: NextFunction) => {
-    //     try {
-    //         const { body: { phoneNumber }, id } = req;
-    //         const checkNumber = await User.findOne({phoneNumber:phoneNumber,_id:{$ne: new Types.ObjectId(id) }});
-    //         if(!checkNumber){
-    //         const otp = OtpGenerator.generate(4, CONFIG_OTP_GENERATOR)
-    //         await User.findByIdAndUpdate(id, { otp: otp,  phoneNumber: phoneNumber, isPhoneNumberVerified:true }, { returnOriginal: false })
-    //         const result = await User.findById(id)
-    //         // await this.utilService.sms(SMS_MESSAGE.SMS_FROM, `${phoneCallingCode}${phoneNumber}`, (SMS_MESSAGE.OTP_VERIFICATION).replace('{{OTP}}', otp))
-    //         //const result = await AppUser.findByIdAndUpdate(id, { otp: otp, phoneNumber: phoneNumber, phoneCallingCode: phoneCallingCode, phoneCountryCode: phoneCountryCode }, { returnOriginal: false })
-    //         return res.status(200).json({ status: true, data: result, message: SMS.OTP_SENT });
-    //         } 
-    //         else{
-    //         return res.status(200).json({ status: false, error: 'Mobile number already registered' });
-    //         }
-    //     } catch (err) {
-    //         next(err)
-    //     }
-    // }
-    
-    // public resendOtp = async (req: RequestTokenHandler, res: Response, next: NextFunction) => {
-    //     try {
-    //         const { id } = req;
-    //         let appUser = await User.findById(id)
-    //         if (appUser) {
-    //         const otp = OtpGenerator.generate(4, CONFIG_OTP_GENERATOR)
-    //         await User.findByIdAndUpdate(id, { otp: otp, isPhoneNumberVerified:true }, { returnOriginal: false })
-    //         const result = await User.findById(id)
-    //         // await this.utilService.sms(SMS_MESSAGE.SMS_FROM, `${appUser.phoneCallingCode}${appUser.phoneNumber}`, (SMS_MESSAGE.OTP_VERIFICATION).replace('{{OTP}}', otp))
-    //         // const result = await AppUser.findByIdAndUpdate(id, { otp: otp }, { returnOriginal: false })
-    //         return res.status(200).json({ status: true, data: result, message: SMS.VERIFIED_SUCCESSFULLY });
-    //         } else {
-    //         return res.status(500).json({ status: false, error: SMS.ERROR_SENDING_MESSAGE });
-    //         }
-    //     } catch (err) {
-    //         next(err)
-    //     }
-    // }
+    public changePassword = async(req:Request, res:Response, next:NextFunction) => {
+        try {
+            const {id, password} = req.body;
+            const hashPassword:string = this.bcrypt.hashingPassword(password) 
+            const changePassword = await User.findByIdAndUpdate(id, {
+                passowrd:hashPassword
+            })
+            return res.status(200).json({
+                status:true,
+                data:{
+                    changePassword
+                },
+                message:USER_MESSAGES.PASSWORD_CREATED
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
     
 }
 
