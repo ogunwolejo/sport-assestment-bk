@@ -14,9 +14,12 @@ class AuthRouter {
         this.router.post('/login',  this.authController.login)
         this.router.post('/login-mobile',  this.authController.loginByPhoneNumber)
         this.router.post('/register', this.authController.signup)
+        this.router.post('/confirm-account', this.authController.confirmUserEmail)
         this.router.post('/changePassword', this.authController.changePassword)
-        this.router.post('/verifyEmail', this.authController.verifyEmail)
+        this.router.post('/verifyEmail', this.authController.verifyEmailForChangingPassword)
         this.router.post('/verifyOtp',  this.authController.verifyOtp);
+        this.router.post('/update-email', this.authController.updateEmail)
+        this.router.post('/update-password', this.authController.updatePassword)
     }
 
 }

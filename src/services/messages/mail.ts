@@ -18,16 +18,16 @@ export class SendNodeMail {
     }
 
 
-    public sendEmail = async(to:string) => {
+    public sendEmail = async(to:string, body:string, subject:string) => {
         await this.transporter.sendMail({
             from: {
                 address:config.get('user'),
                 name:'Joshua Ogunwole'
             },
             to: to,
-            subject: "Hello ✔", // Subject line
+            subject: subject, // Subject line
             text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // html body
+            html: body, // html body
         })
         .then((response:any) => console.log("Node-mailer", response))
         .catch((error:any) => console.log("Node-mailer error", error))

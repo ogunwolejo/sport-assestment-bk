@@ -10,7 +10,8 @@ export const USER_MESSAGES = {
     PASSWORD_CREATED:'Password created',
     PASSWORD_CREATION_ERROR:'Error in creating password',
     INVALID_CREDENTIALS:'Invalid credentials',
-    PASSWORD_RECOVERY:"mail has been sent to your email"
+    PASSWORD_RECOVERY:"mail has been sent to your email",
+    EXPIRED_TOKEN:'try the process again, token has expired'
 }
 
 

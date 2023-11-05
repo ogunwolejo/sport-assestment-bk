@@ -10,6 +10,7 @@ interface IUser extends Document {
     password: string,
     otp: string,
     isOtpVerified: boolean,
+    interest:string;
 }
 
 
@@ -20,6 +21,7 @@ const UserSchema = new Schema<IUser>({
     emailVerified:{ type: Boolean, default: false },
     phoneNumber: { type: String, required:true, unique:true },
     isPhoneNumberVerified: { type: Boolean, default: false },
+    interest:{type:String, required:true, default:''},
     password: { type: String, default: '' },
     otp: { type: String, default: '' },
     isOtpVerified: { type: Boolean, default: false },

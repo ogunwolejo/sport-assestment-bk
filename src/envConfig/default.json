@@ -4,5 +4,6 @@
     "secretKey":"MmxRPB",
     "dbPassword": "eyP87riyjytfzsge",
     "password":"seib axam yivl lvxa",
-    "user":"ogunwole888@gmail.com"
+    "user":"ogunwole888@gmail.com",
+    "frontedUrl":"http://localhost:3000"
 }
