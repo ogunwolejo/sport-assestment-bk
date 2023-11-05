@@ -1,0 +1,9 @@
+{
+    "env": "production",
+    "port": 5000,
+    "secretKey":"MmxRPB",
+    "dbPassword": "eyP87riyjytfzsge",
+    "password":"seib axam yivl lvxa",
+    "user":"ogunwole888@gmail.com",
+    "frontedUrl":"coaching-app-one.vercel.app" 
+}
