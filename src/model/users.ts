@@ -21,7 +21,7 @@ const UserSchema = new Schema<IUser>({
     emailVerified:{ type: Boolean, default: false },
     phoneNumber: { type: String, required:true, unique:true },
     isPhoneNumberVerified: { type: Boolean, default: false },
-    interest:{type:String, required:true, default:''},
+    interest:{type:String, default:''},
     password: { type: String, default: '' },
     otp: { type: String, default: '' },
     isOtpVerified: { type: Boolean, default: false },

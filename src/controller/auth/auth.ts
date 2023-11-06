@@ -9,6 +9,7 @@ import OtpGenerator from 'otp-generator';
 import { PasswordSecurity } from "../../util/bcrypt";
 import { Sms } from "../../services/messages/sms";
 import { SendNodeMail } from "../../services/messages/mail";
+import { HttpException } from "../../util/exception";
 
 class AuthController {
     private bcrypt:PasswordSecurity = new PasswordSecurity()
@@ -75,6 +76,7 @@ class AuthController {
             const { data: { email, firstName, lastName, password, phoneNumber, interest } } = req.body;
             console.log(req.body)
             let appUser = await User.findOne({ email: email })
+            console.log(appUser)
             if (!appUser) {
                 // hash the password
                 const hashPassword:string = this.bcrypt.hashingPassword(password) 
@@ -101,8 +103,12 @@ class AuthController {
                     error:USER_MESSAGES.USER_ALREADY_REGISTERED
                 })
           }
-        } catch (err) {
-          next(err)
+        } catch (err:any) {
+            console.log(err, "\n", err.code, '\n',  err.message);
+            res.status(500).json({
+                error:err.code
+            })
+          next(new HttpException(400, err.error))
         }
     }
 
