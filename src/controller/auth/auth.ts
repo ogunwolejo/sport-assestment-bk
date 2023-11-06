@@ -255,6 +255,7 @@ class AuthController {
             
             // get the user by id
             const user = await User.findById(verifyToken.id)
+            .select('-otp -isOtpVerified').exec()
             if(!user) {
                 return res.status(401).json({
                     status:false,
@@ -278,6 +279,9 @@ class AuthController {
 
             return res.status(200).json({
                 status:true,
+                data:{
+                    user
+                },
                 message:'Email updated successfully'
             })
 
@@ -336,9 +340,45 @@ class AuthController {
 
 
         } catch (error) {
-            
+            next(error)        
         }
     }
+
+    public authenticateUserByToken = async(req:Request, res:Response, next:NextFunction) => {
+        try {
+            const authorization = req.body.Headers;
+            const token:string = authorization.Authorization.split(" ")[1]
+            
+            // verify token
+            const verifyToken:any = this.verifyToken(token)
+            if(!verifyToken.id) {
+                return res.status(400).json({
+                    status:false,
+                    error:"User is not authorized to make this change"
+                })
+            }
+            
+            // get the user by id
+            const user = await User.findById(verifyToken.id)
+            if(!user) {
+                return res.status(401).json({
+                    status:false,
+                    error:USER_MESSAGES.USER_NOT_EXISTS
+                })
+            }
+
+            return res.status(200).json({
+                status:true,
+                data:{
+                    user:user
+                }
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
     
 }
 

@@ -11,6 +11,7 @@ class AuthRouter {
     }
 
     private initializeRoutes() {
+        this.router.post('/', this.authController.authenticateUserByToken)
         this.router.post('/login',  this.authController.login)
         this.router.post('/login-mobile',  this.authController.loginByPhoneNumber)
         this.router.post('/register', this.authController.signup)
